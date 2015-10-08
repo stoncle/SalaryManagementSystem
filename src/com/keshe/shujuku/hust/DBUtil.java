@@ -56,16 +56,22 @@ public class DBUtil {
 		connection = null;
 	}
 	
-	public Boolean doUserLogin(String username, String password) {
+	public Boolean doUserLogin(String username, String password, Boolean isAdmin) {
 		if(!doDBLogin()) {
 			return false;
 		}
 		try {
+			int usertype = isAdmin ? 1 : 0;
 			Statement stmt = connection.createStatement();
-	        String sql = "select * from users where id =" + username + " and password=" + password;
+	        String sql = "select * from users where id=" + username + " and password=" + password + " and usertype=" + usertype;
 	        ResultSet result = stmt.executeQuery(sql);
 	        if(result.first()) {
+	        	UserManager manager = UserManager.getInstance();
+	        	manager.initWithDBData(result);
 	        	return true;
+	        }
+	        else {
+	        	return false;
 	        }
 		} catch(SQLException e) {
 			e.printStackTrace();
@@ -74,7 +80,5 @@ public class DBUtil {
 			e.printStackTrace();
 			return false;
 		}
-		
-		return true;
 	}
 }
